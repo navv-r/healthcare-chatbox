@@ -19,6 +19,48 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(28px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0)    scale(1);    }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-28px) scale(0.95); }
+  to   { opacity: 1; transform: translateX(0)     scale(1);    }
+}
+
+@keyframes fadeScaleIn {
+  from { opacity: 0; transform: scale(0.9); }
+  to   { opacity: 1; transform: scale(1);   }
+}
+
+@keyframes typingDot {
+  0%, 60%, 100% { transform: translateY(0);   opacity: 0.35; }
+  30%           { transform: translateY(-6px); opacity: 1;    }
+}
+
+.animate-slide-in-right {
+  animation: slideInRight 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-slide-in-left {
+  animation: slideInLeft 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-fade-scale-in {
+  animation: fadeScaleIn 0.3s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.typing-dot {
+  animation: typingDot 1.3s ease-in-out infinite;
+}
+.typing-dot:nth-child(2) { animation-delay: 0.18s; }
+.typing-dot:nth-child(3) { animation-delay: 0.36s; }
+
 body {
   background: var(--background);
   color: var(--foreground);
