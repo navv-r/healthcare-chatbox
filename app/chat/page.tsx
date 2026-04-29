@@ -28,27 +28,41 @@ export default function Chat() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, isTyping]);
 
-  function handleSend() {
+  async function handleSend() {
     const trimmed = input.trim();
     if (!trimmed || isTyping) return;
 
     const userMsg: Message = { id: Date.now(), role: "user", text: trimmed };
-    setMessages((prev) => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
     setIsTyping(true);
 
-    setTimeout(() => {
-      setIsTyping(false);
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: updatedMessages.map((m) => ({
+            role: m.role === "ai" ? "assistant" : "user",
+            content: m.text,
+          })),
+        }),
+      });
+
+      const data = await res.json();
       setMessages((prev) => [
         ...prev,
-        {
-          id: Date.now(),
-          role: "ai",
-          text: "Thanks for your question. This is a demo — real AI responses coming soon!",
-          typewriter: true,
-        },
+        { id: Date.now(), role: "ai", text: data.message, typewriter: true },
       ]);
-    }, 1600);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now(), role: "ai", text: "Sorry, something went wrong. Please try again.", typewriter: true },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
