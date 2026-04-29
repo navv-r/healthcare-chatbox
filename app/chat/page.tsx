@@ -8,6 +8,8 @@ type Message = {
   role: "user" | "ai";
   text: string;
   typewriter?: boolean;
+  showExpandPrompt?: boolean;
+  originalQuestion?: string;
 };
 
 const SUGGESTIONS = [
@@ -49,6 +51,45 @@ export default function Chat() {
             role: m.role === "ai" ? "assistant" : "user",
             content: m.text,
           })),
+          mode: "brief",
+        }),
+      });
+
+      const data = await res.json();
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: Date.now(),
+          role: "ai",
+          text: data.message,
+          typewriter: true,
+          showExpandPrompt: true,
+          originalQuestion: trimmed,
+        },
+      ]);
+    } catch {
+      setMessages((prev) => [
+        ...prev,
+        { id: Date.now(), role: "ai", text: "Sorry, something went wrong. Please try again.", typewriter: true },
+      ]);
+    } finally {
+      setIsTyping(false);
+    }
+  }
+
+  async function handleExpand(msgId: number, originalQuestion: string) {
+    setMessages((prev) =>
+      prev.map((m) => m.id === msgId ? { ...m, showExpandPrompt: false } : m)
+    );
+    setIsTyping(true);
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [{ role: "user", content: originalQuestion }],
+          mode: "detailed",
         }),
       });
 
@@ -65,6 +106,12 @@ export default function Chat() {
     } finally {
       setIsTyping(false);
     }
+  }
+
+  function handleDismissExpand(msgId: number) {
+    setMessages((prev) =>
+      prev.map((m) => m.id === msgId ? { ...m, showExpandPrompt: false } : m)
+    );
   }
 
   function handleKeyDown(e: React.KeyboardEvent<HTMLTextAreaElement>) {
@@ -207,7 +254,15 @@ export default function Chat() {
           </div>
 
           {messages.map((msg) => (
-            <ChatBubble key={msg.id} role={msg.role} text={msg.text} typewriter={msg.typewriter} />
+            <ChatBubble
+              key={msg.id}
+              role={msg.role}
+              text={msg.text}
+              typewriter={msg.typewriter}
+              showExpandPrompt={msg.showExpandPrompt}
+              onExpand={() => handleExpand(msg.id, msg.originalQuestion!)}
+              onDismissExpand={() => handleDismissExpand(msg.id)}
+            />
           ))}
 
           {isTyping && <TypingIndicator />}
@@ -310,10 +365,16 @@ function ChatBubble({
   role,
   text,
   typewriter,
+  showExpandPrompt,
+  onExpand,
+  onDismissExpand,
 }: {
   role: "user" | "ai";
   text: string;
   typewriter?: boolean;
+  showExpandPrompt?: boolean;
+  onExpand?: () => void;
+  onDismissExpand?: () => void;
 }) {
   const isUser = role === "user";
   return (
@@ -325,14 +386,37 @@ function ChatBubble({
       >
         {isUser ? "U" : "AI"}
       </div>
-      <div
-        className={`max-w-xl px-4 py-3 rounded-2xl text-sm leading-relaxed ${
-          isUser
-            ? "bg-[#0F4C81] text-white rounded-tr-sm shadow-sm shadow-blue-900/15"
-            : "bg-white text-[#1E293B] rounded-tl-sm border border-[#DBEAFE] shadow-sm"
-        }`}
-      >
-        {isUser ? text : <AIMarkdown text={text} animate={typewriter} />}
+      <div className="flex flex-col gap-2 max-w-xl">
+        <div
+          className={`px-4 py-3 rounded-2xl text-sm leading-relaxed ${
+            isUser
+              ? "bg-[#0F4C81] text-white rounded-tr-sm shadow-sm shadow-blue-900/15"
+              : "bg-white text-[#1E293B] rounded-tl-sm border border-[#DBEAFE] shadow-sm"
+          }`}
+        >
+          {isUser ? text : <AIMarkdown text={text} animate={typewriter} />}
+        </div>
+        {showExpandPrompt && (
+          <div className="bg-[#F8FBFF] border border-[#DBEAFE] rounded-xl px-4 py-3 flex flex-col gap-2.5 animate-fade-scale-in">
+            <p className="text-[12px] text-[#475569] font-medium">
+              Would you like a longer, more in-depth response?
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={onExpand}
+                className="text-[12px] font-semibold text-white bg-[#0F4C81] px-3.5 py-1.5 rounded-lg hover:bg-[#0a3a6e] active:scale-95 transition-all"
+              >
+                Yes, tell me more
+              </button>
+              <button
+                onClick={onDismissExpand}
+                className="text-[12px] font-medium text-[#64748B] bg-white border border-[#DBEAFE] px-3.5 py-1.5 rounded-lg hover:bg-[#F0F6FF] active:scale-95 transition-all"
+              >
+                No thanks
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
