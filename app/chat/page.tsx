@@ -1,5 +1,7 @@
 "use client";
 import { useState, useRef, useEffect } from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 
 type Message = {
   id: number;
@@ -330,36 +332,17 @@ function ChatBubble({
             : "bg-white text-[#1E293B] rounded-tl-sm border border-[#DBEAFE] shadow-sm"
         }`}
       >
-        {typewriter ? <TypewriterText text={text} /> : text}
+        {isUser ? text : <AIMarkdown text={text} animate={typewriter} />}
       </div>
     </div>
   );
 }
 
-function TypewriterText({ text }: { text: string }) {
-  const [displayed, setDisplayed] = useState("");
-  const [done, setDone] = useState(false);
-
-  useEffect(() => {
-    let i = 0;
-    const interval = setInterval(() => {
-      i++;
-      setDisplayed(text.slice(0, i));
-      if (i >= text.length) {
-        clearInterval(interval);
-        setDone(true);
-      }
-    }, 18);
-    return () => clearInterval(interval);
-  }, [text]);
-
+function AIMarkdown({ text, animate }: { text: string; animate?: boolean }) {
   return (
-    <span>
-      {displayed}
-      {!done && (
-        <span className="inline-block w-0.5 h-3.5 bg-[#10B981] ml-0.5 align-middle animate-pulse rounded-sm" />
-      )}
-    </span>
+    <div className={`ai-message ${animate ? "animate-fade-scale-in" : ""}`}>
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+    </div>
   );
 }
 

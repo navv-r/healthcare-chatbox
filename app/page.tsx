@@ -1,5 +1,6 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -88,13 +89,13 @@ export default function Home() {
             className="animate-fade-in-up flex flex-col sm:flex-row gap-3 w-full sm:w-auto"
             style={{ animationDelay: "0.3s" }}
           >
-            <a
-              href="/signup"
+            <button
+              onClick={() => setModalOpen(true)}
               className="inline-flex items-center justify-center gap-2 bg-[#0F4C81] text-white text-sm font-semibold px-7 py-3.5 rounded-full hover:bg-[#0a3a6e] active:scale-[0.98] transition-all shadow-lg shadow-blue-900/20"
             >
               Enter the Waiting Room
               <ArrowRightIcon />
-            </a>
+            </button>
             <a
               href="#how-it-works"
               className="inline-flex items-center justify-center gap-2 bg-white text-[#0F4C81] text-sm font-semibold px-7 py-3.5 rounded-full border border-[#DBEAFE] hover:bg-[#F0F6FF] hover:border-[#BFDBFE] active:scale-[0.98] transition-all"
@@ -262,58 +263,179 @@ export default function Home() {
 // ── Auth modal ───────────────────────────────────────────────────────────────
 
 function AuthModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  const router = useRouter();
+  const [tab, setTab] = useState<"login" | "signup">("login");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [name, setName] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  function handleClose() {
+    if (loading) return;
+    onClose();
+  }
+
+  function resetForm() {
+    setEmail("");
+    setPassword("");
+    setName("");
+  }
+
+  async function startAuth() {
+    setLoading(true);
+    await new Promise((r) => setTimeout(r, 2000));
+    router.push("/chat");
+  }
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    startAuth();
+  }
+
   return (
     <div
       className={`fixed inset-0 z-[100] flex items-center justify-center transition-all duration-300 px-4 ${
         open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
       }`}
     >
-      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleClose} />
       <div
-        className={`relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-7 sm:p-8 flex flex-col gap-3.5 transition-all duration-300 ${
+        className={`relative bg-white rounded-2xl shadow-2xl w-full max-w-sm transition-all duration-300 overflow-hidden ${
           open ? "scale-100 translate-y-0 opacity-100" : "scale-95 translate-y-4 opacity-0"
         }`}
       >
-        <button
-          onClick={onClose}
-          className="absolute top-4 right-4 text-[#94A3B8] hover:text-[#475569] transition-colors p-1 rounded-lg hover:bg-[#F0F6FF]"
-          aria-label="Close"
-        >
-          <svg width={16} height={16} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
-          </svg>
-        </button>
-
-        <div className="text-center mb-1">
-          <div className="w-10 h-10 rounded-xl bg-[#F0F6FF] border border-[#DBEAFE] flex items-center justify-center mx-auto mb-3">
-            <PulseIcon />
+        {/* Loading overlay */}
+        {loading && (
+          <div className="absolute inset-0 z-10 bg-white/95 flex flex-col items-center justify-center gap-4 rounded-2xl">
+            <div className="w-12 h-12 rounded-full border-4 border-[#DBEAFE] border-t-[#0F4C81] animate-spin" />
+            <p className="text-[13px] font-semibold text-[#0F4C81]">
+              {tab === "signup" ? "Creating your account…" : "Signing you in…"}
+            </p>
           </div>
-          <h2 className="text-xl font-bold text-[#0F4C81]">Welcome</h2>
-          <p className="text-sm text-[#64748B] mt-1">How would you like to continue?</p>
-        </div>
+        )}
 
-        <a
-          href="/login"
-          className="w-full text-center text-sm font-semibold text-[#0F4C81] border-2 border-[#0F4C81] px-4 py-3 rounded-xl hover:bg-[#F0F6FF] active:scale-[0.98] transition-all"
-        >
-          Log In
-        </a>
-        <a
-          href="/signup"
-          className="w-full text-center text-sm font-semibold text-white bg-[#0F4C81] px-4 py-3 rounded-xl hover:bg-[#0a3a6e] active:scale-[0.98] transition-all"
-        >
-          Sign Up
-        </a>
-        <button className="w-full flex items-center justify-center gap-3 text-sm font-semibold text-[#1E293B] border border-[#E2E8F0] px-4 py-3 rounded-xl hover:bg-[#F8FAFC] active:scale-[0.98] transition-all">
-          <GoogleLogo />
-          Continue with Google
-        </button>
-        <a
-          href="/chat"
-          className="w-full text-center text-sm font-medium text-[#94A3B8] hover:text-[#475569] transition-colors py-1"
-        >
-          Continue as Guest
-        </a>
+        <div className="p-7 sm:p-8 flex flex-col gap-4">
+          {/* Header */}
+          <div className="flex items-start justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#F0F6FF] border border-[#DBEAFE] flex items-center justify-center flex-shrink-0">
+                <PulseIcon />
+              </div>
+              <div>
+                <h2 className="text-[15px] font-bold text-[#0F4C81] leading-tight">The Waiting Room</h2>
+                <p className="text-[11px] text-[#94A3B8] leading-tight mt-0.5">AI Health Assistant</p>
+              </div>
+            </div>
+            <button
+              onClick={handleClose}
+              className="text-[#94A3B8] hover:text-[#475569] transition-colors p-1 rounded-lg hover:bg-[#F0F6FF] flex-shrink-0 mt-0.5"
+              aria-label="Close"
+            >
+              <svg width={15} height={15} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Tab toggle */}
+          <div className="flex bg-[#F0F6FF] rounded-xl p-1 gap-1">
+            <button
+              onClick={() => { setTab("login"); resetForm(); }}
+              className={`flex-1 text-[13px] font-semibold py-2 rounded-lg transition-all ${
+                tab === "login"
+                  ? "bg-white text-[#0F4C81] shadow-sm"
+                  : "text-[#94A3B8] hover:text-[#64748B]"
+              }`}
+            >
+              Log In
+            </button>
+            <button
+              onClick={() => { setTab("signup"); resetForm(); }}
+              className={`flex-1 text-[13px] font-semibold py-2 rounded-lg transition-all ${
+                tab === "signup"
+                  ? "bg-white text-[#0F4C81] shadow-sm"
+                  : "text-[#94A3B8] hover:text-[#64748B]"
+              }`}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            {tab === "signup" && (
+              <div>
+                <label className="block text-[11px] font-semibold text-[#64748B] mb-1.5 uppercase tracking-wide">
+                  Full Name
+                </label>
+                <input
+                  type="text"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="Jane Smith"
+                  required
+                  className="w-full text-sm text-[#1E293B] placeholder-[#CBD5E1] bg-[#F8FBFF] border border-[#DBEAFE] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#93C5FD] focus:ring-2 focus:ring-[#DBEAFE] transition-all"
+                />
+              </div>
+            )}
+            <div>
+              <label className="block text-[11px] font-semibold text-[#64748B] mb-1.5 uppercase tracking-wide">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                className="w-full text-sm text-[#1E293B] placeholder-[#CBD5E1] bg-[#F8FBFF] border border-[#DBEAFE] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#93C5FD] focus:ring-2 focus:ring-[#DBEAFE] transition-all"
+              />
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold text-[#64748B] mb-1.5 uppercase tracking-wide">
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                className="w-full text-sm text-[#1E293B] placeholder-[#CBD5E1] bg-[#F8FBFF] border border-[#DBEAFE] rounded-xl px-3.5 py-2.5 outline-none focus:border-[#93C5FD] focus:ring-2 focus:ring-[#DBEAFE] transition-all"
+              />
+            </div>
+            <button
+              type="submit"
+              className="w-full text-sm font-semibold text-white bg-[#0F4C81] px-4 py-3 rounded-xl hover:bg-[#0a3a6e] active:scale-[0.98] transition-all shadow-sm shadow-blue-900/20 mt-1"
+            >
+              {tab === "login" ? "Log In" : "Create Account"}
+            </button>
+          </form>
+
+          {/* Divider */}
+          <div className="flex items-center gap-3">
+            <div className="flex-1 h-px bg-[#DBEAFE]" />
+            <span className="text-[11px] text-[#94A3B8] font-medium">or</span>
+            <div className="flex-1 h-px bg-[#DBEAFE]" />
+          </div>
+
+          {/* Social + Guest */}
+          <div className="flex flex-col gap-2.5">
+            <button
+              onClick={() => startAuth()}
+              className="w-full flex items-center justify-center gap-3 text-sm font-semibold text-[#1E293B] border border-[#E2E8F0] px-4 py-2.5 rounded-xl hover:bg-[#F8FAFC] active:scale-[0.98] transition-all"
+            >
+              <GoogleLogo />
+              Continue with Google
+            </button>
+            <button
+              onClick={() => startAuth()}
+              className="w-full text-[13px] font-medium text-[#94A3B8] hover:text-[#475569] transition-colors py-1"
+            >
+              Continue as Guest
+            </button>
+          </div>
+        </div>
       </div>
     </div>
   );

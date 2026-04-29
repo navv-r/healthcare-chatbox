@@ -99,3 +99,70 @@ body {
 .animate-blob {
   animation: blobDrift 14s ease-in-out infinite;
 }
+
+/* ── AI markdown message styling ── */
+.ai-message { line-height: 1.65; }
+
+.ai-message h2 {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #0F4C81;
+  margin: 0.85rem 0 0.35rem;
+  padding-bottom: 0.2rem;
+  border-bottom: 1px solid #DBEAFE;
+}
+
+.ai-message h3 {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: #1E293B;
+  margin: 0.7rem 0 0.25rem;
+}
+
+.ai-message p {
+  margin: 0.4rem 0;
+}
+
+.ai-message ul,
+.ai-message ol {
+  margin: 0.4rem 0 0.4rem 1.1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.ai-message ul { list-style: disc; }
+.ai-message ol { list-style: decimal; }
+
+.ai-message li { padding-left: 0.2rem; }
+
+.ai-message strong {
+  font-weight: 700;
+  color: #0F4C81;
+}
+
+.ai-message em {
+  font-style: italic;
+  color: #64748B;
+  font-size: 0.8rem;
+}
+
+.ai-message code {
+  background: #F0F6FF;
+  border: 1px solid #DBEAFE;
+  border-radius: 4px;
+  padding: 0.1rem 0.35rem;
+  font-size: 0.78rem;
+  font-family: monospace;
+  color: #0F4C81;
+}
+
+.ai-message hr {
+  border: none;
+  border-top: 1px solid #DBEAFE;
+  margin: 0.6rem 0;
+}
+
+/* collapse excess top margin on first child */
+.ai-message > :first-child { margin-top: 0; }
+.ai-message > :last-child  { margin-bottom: 0; }
