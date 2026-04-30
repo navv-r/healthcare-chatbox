@@ -2,6 +2,7 @@
 import { useState, useRef, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
+import { TransitionLink } from "../components/TransitionLink";
 
 type Message = {
   id: number;
@@ -122,7 +123,7 @@ export default function Chat() {
   }
 
   return (
-    <div className="h-screen flex overflow-hidden bg-[#F0F6FF] text-[#1E293B] font-sans">
+    <div className="pg-enter h-screen flex overflow-hidden bg-[#F0F6FF] text-[#1E293B] font-sans">
 
       {/* Mobile backdrop */}
       {sidebarOpen && (
@@ -143,7 +144,7 @@ export default function Chat() {
       >
         {/* Logo */}
         <div className="flex items-center justify-between px-4 h-16 border-b border-[#DBEAFE] flex-shrink-0">
-          <a href="/" className="flex items-center gap-2.5">
+          <TransitionLink href="/" className="flex items-center gap-2.5">
             <PulseIcon />
             <div>
               <p className="text-[13px] font-bold text-[#0F4C81] leading-tight tracking-tight">
@@ -153,7 +154,7 @@ export default function Chat() {
                 AI Health Assistant
               </p>
             </div>
-          </a>
+          </TransitionLink>
           <button
             onClick={() => setSidebarOpen(false)}
             className="lg:hidden text-[#94A3B8] hover:text-[#475569] transition-colors p-1 rounded-lg hover:bg-[#F0F6FF]"
@@ -185,7 +186,7 @@ export default function Chat() {
           <SidebarButton icon={<UserProfileIcon />} label="My Health Profile" />
 
           <SidebarSection label="Account" />
-          <SidebarButton icon={<CrownIcon />} label="Membership" badge="Upgrade" />
+          <SidebarButton icon={<CrownIcon />} label="Membership" badge="Upgrade" href="/membership" />
           <SidebarButton icon={<HeadsetIcon />} label="Contact Us" />
 
           <SidebarSection label="Preferences" />
@@ -207,7 +208,7 @@ export default function Chat() {
               </div>
             </div>
           </div>
-          <a
+          <TransitionLink
             href="/"
             className="mt-1.5 flex items-center gap-2.5 text-[13px] font-medium text-[#64748B] hover:text-[#0F4C81] hover:bg-[#F0F6FF] px-3 py-2 rounded-xl transition-colors group"
           >
@@ -215,7 +216,7 @@ export default function Chat() {
               <LoginIcon />
             </span>
             Sign In / Sign Up
-          </a>
+          </TransitionLink>
         </div>
       </aside>
 
@@ -338,13 +339,16 @@ function SidebarButton({
   icon,
   label,
   badge,
+  href,
 }: {
   icon: React.ReactNode;
   label: string;
   badge?: string;
+  href?: string;
 }) {
-  return (
-    <button className="relative w-full flex items-center gap-3 text-[13px] font-medium text-[#64748B] hover:text-[#0F4C81] hover:bg-[#F0F6FF] px-3 py-2.5 rounded-xl transition-all duration-150 group overflow-hidden">
+  const className = "relative w-full flex items-center gap-3 text-[13px] font-medium text-[#64748B] hover:text-[#0F4C81] hover:bg-[#F0F6FF] px-3 py-2.5 rounded-xl transition-all duration-150 group overflow-hidden";
+  const inner = (
+    <>
       <span className="absolute left-0 top-2 bottom-2 w-[3px] rounded-r-full bg-[#0F4C81] opacity-0 group-hover:opacity-100 transition-opacity duration-150" />
       <span className="text-[#94A3B8] group-hover:text-[#0F4C81] transition-colors flex-shrink-0">
         {icon}
@@ -355,8 +359,12 @@ function SidebarButton({
           {badge}
         </span>
       )}
-    </button>
+    </>
   );
+  if (href) {
+    return <TransitionLink href={href} className={className}>{inner}</TransitionLink>;
+  }
+  return <button className={className}>{inner}</button>;
 }
 
 // ── Chat components ──────────────────────────────────────────────────────────

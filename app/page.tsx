@@ -1,12 +1,13 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { TransitionLink } from "./components/TransitionLink";
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F0F6FF] text-[#1E293B] font-sans overflow-x-hidden">
+    <div className="pg-enter min-h-screen bg-[#F0F6FF] text-[#1E293B] font-sans overflow-x-hidden">
       <AuthModal open={modalOpen} onClose={() => setModalOpen(false)} />
 
       {/* ── Nav ── */}
@@ -36,6 +37,12 @@ export default function Home() {
             >
               How it works
             </a>
+            <TransitionLink
+              href="/membership"
+              className="hidden md:block text-sm font-medium text-[#64748B] hover:text-[#0F4C81] transition-colors"
+            >
+              Pricing
+            </TransitionLink>
             <button
               onClick={() => setModalOpen(true)}
               className="text-[13px] font-semibold bg-[#0F4C81] text-white px-4 sm:px-5 py-2 rounded-full hover:bg-[#0a3a6e] active:scale-[0.97] transition-all"
@@ -57,6 +64,13 @@ export default function Home() {
           className="absolute bottom-0 -left-16 w-[360px] h-[360px] opacity-30 pointer-events-none animate-blob"
           style={{ background: "radial-gradient(circle at center, #10B981 0%, transparent 65%)", animationDelay: "5s" }}
         />
+
+        {/* Floating green particles */}
+        <div className="absolute top-[22%] left-[7%]  w-3   h-3   rounded-full bg-[#10B981] opacity-20 pointer-events-none animate-float-a" />
+        <div className="absolute top-[38%] right-[10%] w-2   h-2   rounded-full bg-[#10B981] opacity-15 pointer-events-none animate-float-b" style={{ animationDelay: "2.5s" }} />
+        <div className="absolute bottom-[28%] left-[14%] w-4 h-4   rounded-full bg-[#10B981] opacity-10 pointer-events-none animate-float-c" style={{ animationDelay: "1.2s" }} />
+        <div className="absolute top-[60%] right-[7%]  w-2.5 h-2.5 rounded-full bg-[#10B981] opacity-20 pointer-events-none animate-float-a" style={{ animationDelay: "3.8s" }} />
+        <div className="absolute top-[12%] left-[32%] w-1.5 h-1.5 rounded-full bg-[#10B981] opacity-25 pointer-events-none animate-float-b" style={{ animationDelay: "0.7s" }} />
 
         <div className="relative max-w-6xl mx-auto px-4 sm:px-6 pt-16 sm:pt-24 lg:pt-32 pb-12 sm:pb-20 flex flex-col items-center text-center">
 
