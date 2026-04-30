@@ -1,11 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const client = new OpenAI({
-  baseURL: "https://router.huggingface.co/v1",
-  apiKey: process.env.HF_TOKEN,
-});
-
 const BRIEF_SYSTEM_PROMPT = `You are a knowledgeable AI health assistant.
 CRITICAL RULE: Your entire response MUST be under 200 characters. No markdown, no lists, no bullet points. Write exactly one short, direct sentence with the single most important point.`;
 
@@ -19,7 +14,14 @@ Format your response using markdown for readability:
 
 Your response should be thorough and approximately 600-700 characters.`;
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
+  const client = new OpenAI({
+    baseURL: "https://router.huggingface.co/v1",
+    apiKey: process.env.HF_TOKEN,
+  });
+
   try {
     const { messages, mode = "brief" } = await req.json();
 
